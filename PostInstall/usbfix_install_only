@@ -1,0 +1,43 @@
+#!/bin/bash
+# USBfix (only) install script
+#
+
+dir=${0%/*}
+if [ -d "$dir" ]; then
+  cd "$dir"
+fi
+while [ ! -d /Volumes/$VOLUME/System ]; do
+printf "\n\================ USBFIX INSTALL SCRIPT ================\ \n"
+printf "\n\n\nEnter the name of the disk where you installed OSX ? \n( Press Enter to exit! )\n\n>> "
+read VOLUME
+printf "\n\n Entered disk name: $VOLUME "
+if [ -z $VOLUME ]; then 
+printf "\n=> Exiting......\n"
+exit 1
+fi
+if [ -d /Volumes/$VOLUME/System ]; then 
+break
+else
+printf "\n\n==> Disk doesnt Exist !\n"
+fi
+done
+printf "\n=> Preparing for USBFIX\n"
+rm -Rf /Volumes/$VOLUME/System/Library/Frameworks/CoreMediaIO.framework/Versions/A/Resources/VDC.plugin
+rm -Rf /Volumes/$VOLUME/System/Library/SystemProfiler/SPUSBReporter.spreporter
+cp -Rf ./USBfix/VDC.plugin /Volumes/$VOLUME/System/Library/Frameworks/CoreMediaIO.framework/Versions/A/Resources/
+cp -Rf ./USBfix/SPUSBReporter.spreporter /Volumes/$VOLUME/System/Library/SystemProfiler/
+printf "\n=> Applying USBFIX\n"
+cp -Rf ./USBfix/*.kext /Volumes/$VOLUME/System/Library/Extensions/
+printf "\n=> Fixing Permissions\n"
+chown -R 0:0 /Volumes/$VOLUME/System/Library/Extensions/ && chmod -R 755 /Volumes/$VOLUME/System/Library/Extensions/
+printf "\n=> Removing the old Caches , PrelinkedKernel and rebuilding\n"
+printf "\n   Verbose: \n"
+rm -rf /Volumes/$VOLUME/System/Library/Caches/com.apple.kext.caches
+rm -rf /Volumes/$VOLUME/System/Library/PrelinkedKernels/prelinkedkernel
+touch /Volumes/$VOLUME/System/Library/Extensions/
+kextcache -u /Volumes/$VOLUME/
+printf "\n=> Finished !\n"
+printf "\n=> Exiting......\n"
+printf "\n ====================== NOW REBOOT ==================== \n"
+
+exit 0

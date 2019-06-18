@@ -1,0 +1,22 @@
+#!/bin/bash
+# 
+# Pre Install Script
+# ~XLNC~
+#
+
+dir=${0%/*}
+if [ -d "$dir" ]; then
+  cd "$dir"
+fi
+
+printf "\n\================ PRE INSTALL SCRIPT ================\ \n"
+printf "\n\n\nEnter the name of the newly created OSX disk ? \n( Press 'Ctrl + Z' on your keyboard to exit )\n\n>> "
+read VOLUME
+printf "\n=> Entered disk name: $VOLUME \n"
+printf "\n=> Performing pre-install actions on $VOLUME \n"
+cp -Rf ./Prelinkedkernel/prelinkedkernel /Volumes/$VOLUME/macOS\ Install\ Data/Locked\ Files/Boot\ Files/prelinkedkernel
+touch /Volumes/$VOLUME/macOS\ Install\ Data/Locked\ Files/Boot\ Files/prelinkedkernel
+sed -i '' 's/auth-//g' /Volumes/$VOLUME/macOS\ Install\ Data/Locked\ Files/Boot\ Files/com.apple.Boot.plist 
+printf "\n=> Finished !\n"
+printf "\n IMPORTANT : NOW RESTART BACK TO CLOVER MENU AND SELECT YOUR ($VOLUME) DRIVE TO CONTINUE TO THE INSTALLATION !\n\n"
+exit 0

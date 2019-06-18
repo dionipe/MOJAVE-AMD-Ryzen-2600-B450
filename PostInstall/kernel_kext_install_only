@@ -1,0 +1,47 @@
+#!/bin/bash
+# Kernel and kexts (only) install script
+
+
+dir=${0%/*}
+if [ -d "$dir" ]; then
+  cd "$dir"
+fi
+while [ ! -d /Volumes/$VOLUME/System ]; do  
+printf "\n\================ KERNEL AND KEXTS ONLY INSTALL SCRIPT ================\ \n"
+printf "\n\n\nEnter the name of the disk where you installed OSX ? \n( Press Enter to exit! )\n\n>> "
+read VOLUME
+printf "\n\n Entered disk name: $VOLUME "
+if [ -z $VOLUME ]; then 
+printf "\n=> Exiting......\n"
+exit 1
+fi
+if [ -d /Volumes/$VOLUME/System ]; then 
+break
+else
+printf "\n\n==> Disk doesnt Exist !\n"
+fi
+done
+printf "\n\n Performing post install actions on : $VOLUME "
+printf "\n=> Installing AMD Kernel\n"
+cp -Rf ./Kernels/kernel /Volumes/$VOLUME/System/Library/Kernels/kernel
+touch /Volumes/$VOLUME/System/Library/Kernels/kernel
+printf "\n=> Removing Problematic Kexts\n"
+rm -rf /Volumes/$VOLUME/System/Library/Extensions/AppleIntelCPUPowerManagement.kext
+rm -rf /Volumes/$VOLUME/System/Library/Extensions/pmtelemetry.kext
+rm -rf /Volumes/$VOLUME/System/Library/Extensions/AppleTyMCEDriver.kext
+printf "\n=> Installing Extensions\n"
+cp -Rf ./Extensions/*.kext /Volumes/$VOLUME/System/Library/Extensions/
+touch /Volumes/$VOLUME/System/Library/Extensions/
+printf "\n=> Fixing Permissions\n"
+chown -R 0:0 /Volumes/$VOLUME/System/Library/Extensions/ && chmod -R 755 /Volumes/$VOLUME/System/Library/Extensions/
+printf "\n=> Removing the old caches , PrelinkedKernel and rebuilding\n"
+printf "\n   Verbose: \n"
+rm -rf /Volumes/$VOLUME/System/Caches/com.apple.kext.caches
+rm -rf /Volumes/$VOLUME/System/Library/PrelinkedKernels/prelinkedkernel
+kextcache -u /Volumes/$VOLUME/
+printf "\n=> Finished !\n"
+printf "\n=> Exiting......\n"
+printf "\n ====================== NOW REBOOT ==================== \n"
+
+
+exit 0
